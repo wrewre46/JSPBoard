@@ -19,4 +19,4 @@ JSP 게시판 만들기
 - IDE : Eclipse Java EE
 - Language Version : Java 11
 - Server Version : Tomcat 9.0
-- DB : MYSQL
+- DB : MySQL
