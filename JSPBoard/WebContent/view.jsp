@@ -1,11 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@page import="java.io.PrintWriter" %>
-<%@page import="Board.BoardDAO" %>
-<%@page import="Board.Board" %>
-<%@page import="java.util.*" %>
+<%@page import ="Board.Board" %>
+<%@page import ="Board.BoardDAO" %>
 <!DOCTYPE html>
-
 <html lang="en">
     <head>
         <meta charset="utf-8" />
@@ -17,12 +15,6 @@
         <!-- Core theme CSS (includes Bootstrap)-->
         <link href="css/styles.css" rel="stylesheet" />
     </head>
-    <style type ="text/css">
-		a, a:hover{
-			coler:#000000;
-			text-decoration:none;
-		}
-	</style>	
     <body>
         <!-- Responsive navbar-->
         <%
@@ -30,10 +22,19 @@
         	if(session.getAttribute("userID") !=null){
         		userID = (String) session.getAttribute("userID");
         	}
-        	int pageNumber =1;
-        	if(request.getParameter("pageNumber") !=null){
-        		pageNumber=Integer.parseInt(request.getParameter("pageNumber"));
+        	int BoardID=0;
+        	if(request.getParameter("BoardID")!=null){
+        		BoardID=Integer.parseInt(request.getParameter("BoardID"));
+        		
         	}
+        	if(BoardID==0){
+        		PrintWriter script = response.getWriter();
+    			script.println("<script>");
+    			script.println("alert('유효하지 않은 요청입니다.')");
+    			script.println("location.href=Board.jsp");
+    			script.println("</script>");
+        	}
+        	Board board=new BoardDAO().getBoard(BoardID);
         %>
         	
             <% 
@@ -87,53 +88,54 @@
         		}        	
         	%>        
         <!-- Page content-->
-        <div class="container">
+        <form method="post" action="writeAction.jsp">
+        	<div class="container">
             <div class="row">
-            	<table class = "table table-striped" style="text-align: center; border: 1px solid #dddddd">
+            	<table class = "table table-striped"  style="text-align:center; border: 1px solid #dddddd">
             		<thead>
             			<tr>
-            				<th style="background-color: #eeeeee; text-align: center;">번호</th>
-            				<th style="background-color: #eeeeee; text-align: center;">제목</th>
-            				<th style="background-color: #eeeeee; text-align: center;">작성자</th>
-            				<th style="background-color: #eeeeee; text-align: center;">작성일</th>            				
+            				<th colspan="3" style="background-color: #eeeeee; text-align: center;">게시판 글 보기</th>
+            				          				
             			</tr>
             		</thead>
             		<tbody>
-            			
-            			<%
-            				BoardDAO boardDAO = new BoardDAO();
-            				ArrayList<Board> list = boardDAO.getList(pageNumber);
-            				for(int i =0; i<list.size(); i++){
-            					
-            			%>
-            			<tr>
-            				<td><%= list.get(i).getBoardID() %></td>
-            				<td><a href="view.jsp?BoardID=<%= list.get(i).getBoardID() %>"><%=list.get(i).getBoardTitle() %></a></td>
-            				<td><%= list.get(i).getUserID() %></td>
-            				<td><%= list.get(i).getBoardDate().substring(0,11)+list.get(i).getBoardDate().substring(11,13)+"시 "+ list.get(i).getBoardDate().substring(14,16)+"분" %></td>
+            			<tr> 
+            				<td>글 제목</td>
+            				<td colspan="2"><%= board.getBoardTitle().replaceAll(" ", "&nbsp;").replaceAll("<","&lt;").replaceAll(">", "&gt;") %></td>
             			</tr>
-            			<%
-            				}
-            			%>
+            			<tr>
+            				<td>작성자</td>
+            				<td colspan="2"><%= board.getUserID() %></td>
+            			</tr>
+            			<tr>
+            				<td> 작성일자 </td>
+            				<td colspan="2"><%= board.getBoardDate().substring(0,11)+board.getBoardDate().substring(11,13)+"시 "+board.getBoardDate().substring(14,16)+"분" %></td>
+            			</tr>
+            				
+            			<tr>
+            				<td>글 내용</td>            				
+            				<td  style="min-height: 600px; text-align:left;"><%= board.getBoardContent().replaceAll(" ", "&nbsp;").replaceAll("<","&lt;").replaceAll(">", "&gt;") %></td>
+            			</tr>
             		</tbody>
-            	</table>  
-            	<div class="pagination justify-content-center">           
-                      <% 
-                        if(pageNumber !=1){
-                       %>
-                         <a href="board.jsp?pageNumber=<%=pageNumber -1%>" class="btn btn-success" >이전</a>
-                       <%
-                        }if(boardDAO.nextPage(pageNumber+1)){
-                       %>
-                         <a href="board.jsp?pageNumber=<%=pageNumber +1%>" class="btn btn-success">다음</a>
-                      <%
-                        }
-                      %>
-              </div> 
+            	</table>              
+                
+                
             </div>
-            <a href="write.jsp" class="btn btn-primary" style="float: right;">글쓰기</a>
+            <a href="board.jsp" class="btn btn-primary" style="float: left; ">목록</a>
+           <class="space">
+                <%
+                	if(userID != null && userID.equals(board.getUserID())){
+                %>
+                	<a href="update.jsp?boardID=<%=BoardID%>" class="btn btn-primary"  style="float:left;">수정</a>
+                	<a href="deleteAction.jsp?boardID=<%=BoardID%>" class="btn btn-primary" style="float: left; ">삭제</a>
+                <%
+                	}
+                %>
+            <input type="submit" class="btn btn-primary" style="float: right;" value="글쓰기">
             	
         </div>
+        </form>
+        
         
         
         <!-- Bootstrap core JS-->

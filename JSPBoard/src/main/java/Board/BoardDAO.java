@@ -107,4 +107,54 @@ public class BoardDAO {
 		}
 		return false;
 	}
+	public Board getBoard(int BoardID) {
+		String SQL = "SELECT * FROM board WHERE boardID = ?";
+		
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, BoardID);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				Board board = new Board();
+				board.setBoardID(rs.getInt(1));
+				board.setBoardTitle(rs.getString(2));
+				board.setUserID(rs.getString(3));
+				board.setBoardDate(rs.getString(4));
+				board.setBoardContent(rs.getString(5));
+				board.setBoardAvailable(rs.getInt(6));
+				return board;
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public int update(int BoardID, String BoardTitle, String BoardContent) {
+		String SQL ="UPDATE Board SET boardTitle = ?, boardContent = ? WHERE boardID = ?";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setString(1,  BoardTitle);
+			pstmt.setString(2,  BoardContent);
+			pstmt.setInt(3,  BoardID);
+			return pstmt.executeUpdate();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	public int delete(int BoardID) {
+		String SQL ="UPDATE Board SET boardAvailable=0 WHERE boardID = ?";
+		try {
+			PreparedStatement pstmt = conn.prepareStatement(SQL);
+			pstmt.setInt(1, BoardID);
+			
+			return pstmt.executeUpdate();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
 }
