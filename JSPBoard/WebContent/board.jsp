@@ -101,13 +101,16 @@
             		<tbody>
             			
             			<%
+            				int LastPage=1;
             				BoardDAO boardDAO = new BoardDAO();
-            				ArrayList<Board> list = boardDAO.getList(pageNumber);
+            				ArrayList<Board> list = boardDAO.getList(pageNumber);            				
+            				if(boardDAO.getTotalAvailableList().size()%10 ==0) LastPage=boardDAO.getTotalAvailableList().size()/10;
+		       				else LastPage=boardDAO.getTotalAvailableList().size()/10+1;
             				for(int i =0; i<list.size(); i++){
             					
             			%>
             			<tr>
-            				<td><%= list.size()-i%></td>
+            				<td><%= boardDAO.findBoardNumber(list.get(i).getBoardID())%></td>
             				<td><a href="view.jsp?BoardID=<%= list.get(i).getBoardID() %>"><%=list.get(i).getBoardTitle() %></a></td>
             				<td><%= list.get(i).getUserID() %></td>
             				<td><%= list.get(i).getBoardDate().substring(0,11)+list.get(i).getBoardDate().substring(11,13)+"시 "+ list.get(i).getBoardDate().substring(14,16)+"분" %></td>
@@ -118,17 +121,43 @@
             		</tbody>
             	</table>  
             	<div class="pagination justify-content-center">           
-                      <% 
-                        if(pageNumber !=1){
+                     <% 
+                        if(pageNumber>1){
                        %>
                          <a href="board.jsp?pageNumber=<%=pageNumber -1%>" class="btn btn-success" >이전</a>
                        <%
-                        }if(boardDAO.nextPage(pageNumber+1)){
+                        }else{
                        %>
-                         <a href="board.jsp?pageNumber=<%=pageNumber +1%>" class="btn btn-success">다음</a>
+                         <div class ="btn btn-success">이전</div>
+                       <%
+                         }
+                       %>
+                       <%
+                       if(LastPage<6){
+	                       	for(int i = 1 ; i<=LastPage;i++){
+	                       %>
+	                        <a href="board.jsp?pageNumber=<%=i%>" class="btn"><%=i%></a>
+	                       <%
+	                       }
+                       }else{                      
+	                       for(int i = 1 ; i<=5;i++){
+		               %>
+		                        <a href="board.jsp?pageNumber=<%=i%>" class="btn"><%=i%></a>
+                   		<%
+	                       }
+                       }
+                   		%>
+                       <%
+                       	if(pageNumber<LastPage){
+                       %>
+                      <a href="board.jsp?pageNumber=<%=pageNumber+1%>" class="btn btn-success">다음</a>
                       <%
-                        }
+                      	}else{     	
                       %>
+                     	<div class ="btn btn-success">다음</div>
+                     <%
+                      	}
+                     %>
               </div> 
             </div>
             <a href="write.jsp" class="btn btn-primary" style="float: right;">글쓰기</a>

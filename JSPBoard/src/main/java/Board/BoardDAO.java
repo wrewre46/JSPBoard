@@ -69,11 +69,11 @@ public class BoardDAO {
 		return -1;
 	}
 	public ArrayList<Board> getList(int pageNumber){
-		String SQL = "SELECT * FROM board WHERE boardID < ? AND boardAvailable = 1 ORDER BY boardID DESC LIMIT 10";
+		String SQL = "SELECT * FROM board WHERE boardAvailable = 1 ORDER BY boardID DESC LIMIT 10 OFFSET ?";
 		ArrayList<Board> list = new ArrayList<Board>();
 		try {
 			PreparedStatement pstmt = conn.prepareStatement(SQL);
-			pstmt.setInt(1, getNext() - (pageNumber -1)*10);
+			pstmt.setInt(1, (pageNumber -1)*10);
 			rs = pstmt.executeQuery();
 			while(rs.next()) {
 				Board board = new Board();
@@ -90,23 +90,8 @@ public class BoardDAO {
 			e.printStackTrace();
 		}
 		return list;
-	}
-	public boolean nextPage(int pageNumber) {
-		String SQL = "SELECT * FROM board WHERE boardID < ? AND boardAvailable = 1";
-		
-		try {
-			PreparedStatement pstmt = conn.prepareStatement(SQL);
-			pstmt.setInt(1, getNext() - (pageNumber -1)*10);
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				return true;
-			}
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
+	}	
+
 	public Board getBoard(int BoardID) {
 		String SQL = "SELECT * FROM board WHERE boardID = ?";
 		
@@ -144,6 +129,43 @@ public class BoardDAO {
 		}
 		return -1;
 	}
+	public int findBoardNumber(int BoardID) {
+		BoardDAO boardDAO=new BoardDAO();
+		ArrayList<Board> arr= boardDAO.getTotalAvailableList();  
+		int k = 0;
+		int num=0;
+		while(true) {
+			if(k>=arr.size()) break;
+			if(arr.get(k).getBoardID()==BoardID) {
+				num=k+1;
+				break;
+			}
+			k++;
+		}
+		return num;		
+	}
+	public ArrayList<Board> getTotalAvailableList(){
+			String SQL = "SELECT * FROM board WHERE boardAvailable = 1";
+			ArrayList<Board> list = new ArrayList<Board>();
+			try {
+				PreparedStatement pstmt = conn.prepareStatement(SQL);
+				rs = pstmt.executeQuery();
+				while(rs.next()) {
+					Board board = new Board();
+					board.setBoardID(rs.getInt(1));
+					board.setBoardTitle(rs.getString(2));
+					board.setUserID(rs.getString(3));
+					board.setBoardDate(rs.getString(4));
+					board.setBoardContent(rs.getString(5));
+					board.setBoardAvailable(rs.getInt(6));
+					list.add(board);
+				}
+			
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return list;
+		}
 	public int delete(int BoardID) {
 		String SQL ="UPDATE Board SET boardAvailable=0 WHERE boardID = ?";
 		try {

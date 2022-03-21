@@ -131,7 +131,7 @@
                 <%
                 	}
                 %>
-            <input type="submit" class="btn btn-primary" style="float: right;" value="글쓰기">
+           
             	
         </div>
         </form>
